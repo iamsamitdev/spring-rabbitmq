@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Service RabbitMQ for Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-server
+    restart: always
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=12345678
+    networks:
+      - spring_network
+
+  orderservice:
+    image: ord-service
+    container_name: ord-service-app
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8080
+    restart: always
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - spring_network
+
+networks:
+  spring_network:
+    name: sping_rabbitmq
+    driver: bridge
